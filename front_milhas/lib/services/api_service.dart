@@ -38,4 +38,30 @@ class ApiService {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('jwt_token');
   }
+
+  Future<Map<String, dynamic>?> getDadosDashboard() async {
+    final token = await getToken();
+    if (token == null) return null;
+
+    final url = Uri.parse('$baseUrl/relatorios/resumo');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('Erro ao buscar dashboard: $e');
+      return null;
+    }
+  }
 }
