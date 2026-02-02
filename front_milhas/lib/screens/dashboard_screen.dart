@@ -4,6 +4,7 @@ import '../main.dart';
 import 'cartoes_screen.dart';
 import 'nova_compra_screen.dart';
 import 'extrato_screen.dart';
+import 'programas_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -90,6 +91,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     Navigator.push(context, MaterialPageRoute(builder: (_) => const NovaCompraScreen()));
                   }),
                   _botaoAcao(Icons.airplane_ticket, "Programas", () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const ProgramasScreen()));
                   }),
                   _botaoAcao(Icons.history, "Extrato", () {
                     Navigator.push(context, MaterialPageRoute(builder: (_) => const ExtratoScreen()));

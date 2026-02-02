@@ -252,4 +252,29 @@ class ApiService {
       return false;
     }
   }
+
+  Future<bool> cadastrarPrograma(String nome, double fator) async {
+    final token = await getToken();
+    final url = Uri.parse('$baseUrl/programas');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token'
+        },
+        body: jsonEncode({
+          'nome': nome,
+          'taxaConversao': fator,
+          'descricao': 'Programa $nome',
+        }),
+      );
+
+      return response.statusCode == 201 || response.statusCode == 200;
+    } catch (e) {
+      print('Erro ao criar programa: $e');
+      return false;
+    }
+  }
 }
