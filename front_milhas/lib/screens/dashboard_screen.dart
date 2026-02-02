@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../main.dart';
+import 'cartoes_screen.dart';
+import 'nova_compra_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -81,8 +83,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 mainAxisSpacing: 10,
                 children: [
                   _botaoAcao(Icons.credit_card, "Meus Cartões", () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const CartoesScreen()));
                   }),
                   _botaoAcao(Icons.shopping_bag, "Nova Compra", () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const NovaCompraScreen()));
                   }),
                   _botaoAcao(Icons.airplane_ticket, "Programas", () {
                   }),
