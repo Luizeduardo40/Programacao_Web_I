@@ -231,4 +231,25 @@ class ApiService {
       return null;
     }
   }
+
+  Future<bool> cadastrarUsuario(String nome, String email, String senha) async {
+    final url = Uri.parse('$baseUrl/auth/registro');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'nome': nome,
+          'email': email,
+          'senha': senha,
+        }),
+      );
+
+      return response.statusCode == 201 || response.statusCode == 200;
+    } catch (e) {
+      print('Erro ao cadastrar: $e');
+      return false;
+    }
+  }
 }
