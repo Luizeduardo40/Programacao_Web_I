@@ -18,78 +18,200 @@ class _RecuperarSenhaScreenState extends State<RecuperarSenhaScreen> {
   bool _isLoading = false;
 
   void _enviarEmail() async {
-    if (_emailCtrl.text.isEmpty) return;
+    if (_emailCtrl.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Informe seu e-mail.")));
+      return;
+    }
+
     setState(() => _isLoading = true);
 
     bool ok = await _apiService.solicitarRecuperacaoSenha(_emailCtrl.text);
 
     setState(() => _isLoading = false);
+
     if (ok) {
       setState(() => _etapa = 2);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Email enviado! Verifique seu código.")));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Código enviado! Verifique seu e-mail."), backgroundColor: Colors.green),
+        );
+      }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Erro. Verifique o e-mail.")));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Erro. Verifique se o e-mail está correto."), backgroundColor: Colors.red),
+        );
+      }
     }
   }
 
   void _resetar() async {
-    if (_tokenCtrl.text.isEmpty || _novaSenhaCtrl.text.isEmpty) return;
+    if (_tokenCtrl.text.isEmpty || _novaSenhaCtrl.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Preencha todos os campos.")));
+      return;
+    }
+
     setState(() => _isLoading = true);
 
     bool ok = await _apiService.redefinirSenha(_tokenCtrl.text, _novaSenhaCtrl.text);
 
     setState(() => _isLoading = false);
+
     if (ok) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Senha alterada com sucesso!")));
-      Navigator.pop(context);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Senha alterada com sucesso!"), backgroundColor: Colors.green),
+        );
+        Navigator.pop(context);
+      }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Token inválido ou erro no sistema.")));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Token inválido ou expirado."), backgroundColor: Colors.red),
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Recuperar Senha")),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (_etapa == 1) ...[
-              const Text("Informe seu e-mail para receber o código de recuperação."),
-              const SizedBox(height: 20),
-              TextField(
-                controller: _emailCtrl,
-                decoration: const InputDecoration(labelText: "E-mail", border: OutlineInputBorder()),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _isLoading ? null : _enviarEmail,
-                child: _isLoading ? const CircularProgressIndicator() : const Text("Enviar Código"),
-              ),
-            ] else ...[
-              const Text("Insira o código recebido e sua nova senha."),
-              const SizedBox(height: 20),
-              TextField(
-                controller: _tokenCtrl,
-                decoration: const InputDecoration(labelText: "Código / Token", border: OutlineInputBorder()),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: _novaSenhaCtrl,
-                decoration: const InputDecoration(labelText: "Nova Senha", border: OutlineInputBorder()),
-                obscureText: true,
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _isLoading ? null : _resetar,
-                child: _isLoading ? const CircularProgressIndicator() : const Text("Definir Nova Senha"),
-              ),
-            ]
-          ],
+      body: Container(
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF1565C0), Color(0xFF42A5F5)],
+          ),
+        ),
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.lock_reset, size: 70, color: Colors.white),
+                const SizedBox(height: 10),
+                const Text(
+                  "Recuperar Senha",
+                  style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 30),
+
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 400),
+                  child: Card(
+                    elevation: 8,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(32),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          if (_etapa == 1) _buildEtapa1() else _buildEtapa2(),
+
+                          const SizedBox(height: 20),
+
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text("Voltar para o Login"),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _buildEtapa1() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Text(
+          "Passo 1 de 2",
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 10),
+        const Text(
+          "Informe seu e-mail cadastrado. Enviaremos um código de verificação para você.",
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 14, color: Color(0xFF2D3436)),
+        ),
+        const SizedBox(height: 25),
+
+        TextField(
+          controller: _emailCtrl,
+          decoration: const InputDecoration(
+            labelText: "E-mail",
+            prefixIcon: Icon(Icons.email_outlined),
+          ),
+          keyboardType: TextInputType.emailAddress,
+        ),
+
+        const SizedBox(height: 30),
+
+        _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : ElevatedButton(
+          onPressed: _enviarEmail,
+          child: const Text("ENVIAR CÓDIGO"),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEtapa2() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Text(
+          "Passo 2 de 2",
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Colors.green, fontSize: 12, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 10),
+        const Text(
+          "Verifique seu e-mail e digite o código recebido abaixo junto com sua nova senha.",
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 14, color: Color(0xFF2D3436)),
+        ),
+        const SizedBox(height: 25),
+
+        TextField(
+          controller: _tokenCtrl,
+          decoration: const InputDecoration(
+            labelText: "Código (Token)",
+            prefixIcon: Icon(Icons.vpn_key_outlined),
+          ),
+        ),
+        const SizedBox(height: 15),
+        TextField(
+          controller: _novaSenhaCtrl,
+          decoration: const InputDecoration(
+            labelText: "Nova Senha",
+            prefixIcon: Icon(Icons.lock_outline),
+          ),
+          obscureText: true,
+        ),
+
+        const SizedBox(height: 30),
+
+        _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : ElevatedButton(
+          onPressed: _resetar,
+          style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+          child: const Text("REDEFINIR SENHA"),
+        ),
+      ],
     );
   }
 }
