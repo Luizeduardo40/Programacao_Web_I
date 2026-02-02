@@ -277,4 +277,61 @@ class ApiService {
       return false;
     }
   }
+
+  Future<bool> atualizarPerfil(String nome, String? novaSenha) async {
+    final token = await getToken();
+    final url = Uri.parse('$baseUrl/auth/perfil');
+
+    Map<String, dynamic> corpo = {'nome': nome};
+    if (novaSenha != null && novaSenha.isNotEmpty) {
+      corpo['senha'] = novaSenha;
+    }
+
+    try {
+      final response = await http.put(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token'
+        },
+        body: jsonEncode(corpo),
+      );
+
+      return response.statusCode == 200;
+    } catch (e) {
+      print('Erro ao atualizar perfil: $e');
+      return false;
+    }
+  }
+
+  Future<bool> solicitarRecuperacaoSenha(String email) async {
+    final url = Uri.parse('$baseUrl/auth/recuperar-senha');
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email}),
+      );
+      return response.statusCode == 200;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> redefinirSenha(String token, String novaSenha) async {
+    final url = Uri.parse('$baseUrl/auth/resetar-senha');
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'token': token,
+          'novaSenha': novaSenha
+        }),
+      );
+      return response.statusCode == 200;
+    } catch (e) {
+      return false;
+    }
+  }
 }

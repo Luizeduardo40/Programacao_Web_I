@@ -5,6 +5,7 @@ import 'cartoes_screen.dart';
 import 'nova_compra_screen.dart';
 import 'extrato_screen.dart';
 import 'programas_screen.dart';
+import 'perfil_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -44,7 +45,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
         title: const Text('Minhas Milhas'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.person),
+            tooltip: 'Meu Perfil',
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const PerfilScreen()));
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.exit_to_app),
+            tooltip: 'Sair',
             onPressed: () {
               Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const LoginScreen()));
             },
