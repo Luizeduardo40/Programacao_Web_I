@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:file_picker/file_picker.dart';
+import 'dart:typed_data';
 
 class ApiService {
   // Android: 'http://10.0.2.2:8080/api'
@@ -180,6 +181,54 @@ class ApiService {
     } catch (e) {
       print('Erro ao cadastrar cartão: $e');
       return false;
+    }
+  }
+
+  Future<List<dynamic>> getExtrato() async {
+    final token = await getToken();
+    final url = Uri.parse('$baseUrl/compras');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return [];
+      }
+    } catch (e) {
+      print('Erro ao buscar extrato: $e');
+      return [];
+    }
+  }
+
+  Future<String> getUrlRelatorio(String tipo) async {
+    final token = await getToken();
+    return '$baseUrl/relatorios/compras/$tipo';
+  }
+
+  Future<Uint8List?> downloadRelatorio(String tipo) async {
+    final token = await getToken();
+    final url = Uri.parse('$baseUrl/relatorios/compras/$tipo');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      if (response.statusCode == 200) {
+        return response.bodyBytes;
+      } else {
+        print('Erro Download: ${response.statusCode} - ${response.body}');
+        return null;
+      }
+    } catch (e) {
+      print('Erro de conexão no download: $e');
+      return null;
     }
   }
 }
